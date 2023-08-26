@@ -1,33 +1,119 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import axios from 'axios'
+//import './App.css'
+
+const host = 'https://todolist-api.hexschool.io'
+
+const SignUp =()=>{
+  const [email,setEmail]=useState('');
+  const [password,setPassword]=useState('');
+  const [nickname,setNickname]=useState('');
+  const [message,setMessage]=useState('')
+  console.log('註冊');
+  //console.log(form)
+  const signUp = async()=>{
+    try {
+      const res = await axios.post(`${host}/users/sign_up`,{
+        email,password,nickname
+      });
+      console.log(res);
+      setMessage('註冊成功，你的UID:'+res.data.uid);
+      setEmail('');
+      setPassword('');
+      setNickname('');
+    } catch (error) {
+      console.log(error.response.data.message);
+      setMessage('註冊失敗'+error.response.data.message)
+    }
+    
+  }
+
+
+return (
+  <>
+    <div>
+      <h2>註冊</h2>
+      <input type="email" name="email" value={email} placeholder='Email'onChange={(e)=>setEmail(e.target.value)}/>
+      <input type="password" name="password" value={password} placeholder='Password' onChange={(e)=>setPassword(e.target.value)}/>
+      <input type="text" name='nickname'value={nickname} placeholder='Nickname' onChange={(e)=>setNickname(e.target.value)}/>
+      <button onClick={signUp}>Sign Up</button>
+      {message}
+    </div>
+  </>
+)
+}
+
+const SignIn =()=>{
+  const [email,setEmail]=useState('');
+  const [password,setPassword]=useState('');
+  const [token,setToken]=useState('');
+
+  const signIn = async()=>{
+    console.log('登入');
+    try {
+      const res = await axios.post(`${host}/users/sign_in`,{
+      email:email,
+      password:password
+    });
+      console.log(res.data.token);
+      setToken(res.data.token);
+      setEmail('');
+      setPassword('')
+    } catch (error) {
+      console.log(error);
+      setToken(error.response.data.message)
+    }
+    
+  }
+
+  return<>
+  <h2>登入</h2>
+  <input type="email" name="email" value={email}  placeholder='Email'onChange={(e)=>setEmail(e.target.value)}/>
+  <input type="password" name="password" value={password} placeholder='password'onChange={(e)=>setPassword(e.target.value)}/>
+  <button onClick={signIn}>Sign In</button>
+  <br />
+  Token: {token}
+  </>
+}
+
+const Checkout =()=>{
+
+  const [token,setToken]=useState('');
+  const [message,setMessage]=useState('')
+
+  const checkout = async()=>{
+    try {
+      const res = await axios.get(`${host}/users/checkout`,{
+        headers:{
+          authorization:token
+        }
+      });
+      console.log(res);
+      setMessage('驗證成功');
+      setToken('')
+    } catch (error) {
+      console.log(error.response.data.message);
+      setMessage(error.response.data.message)
+    }
+    
+  }
+
+  return <>
+    <h2>驗證</h2>
+     <input type="text" name="token" onChange={(e)=>setToken(e.target.value)}/>
+     <button onClick={checkout}>驗證</button>
+     <br/>
+     {message}
+  </>
+}
+
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <SignUp/>
+      <SignIn/>
+      <Checkout />
     </>
   )
 }
